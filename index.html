@@ -367,22 +367,104 @@ nav{
 .pkg-disc{font-family:var(--mono);font-size:10px;color:var(--ink30);margin-top:20px;line-height:1.7;letter-spacing:.03em}
 
 /* ══ SIMULATOR ══ */
-.sim-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);margin-top:48px}
-.sim-l{padding:48px 40px;border-right:1px solid var(--line);background:var(--white)}
-.sim-r{padding:48px 40px;background:var(--ink)}
-.sim-fields{display:flex;flex-direction:column;gap:24px;margin-top:20px}
-.sf-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
-.sf-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink30)}
-.sf-val{font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.04em}
-input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer;height:6px;border-radius:3px;-webkit-appearance:none;appearance:none;background:var(--line)}
-.sr-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px}
-.sr-big{font-size:clamp(52px,6vw,80px);font-weight:900;color:var(--white);letter-spacing:-.06em;line-height:1;margin-bottom:6px}
-.sr-note{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:36px;font-family:var(--mono);letter-spacing:.03em}
-.sb-row{display:grid;grid-template-columns:80px 1fr 60px;align-items:center;gap:12px;margin-bottom:14px}
-.sb-l{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.3)}
-.sb-tr{height:2px;background:rgba(255,255,255,.1)}
-.sb-f{height:100%;background:var(--blue);transition:width .7s cubic-bezier(.16,1,.3,1)}
-.sb-v{font-family:var(--mono);font-size:11px;color:var(--white);text-align:right;font-weight:500}
+/* ══ GROWTH SIMULATOR ══ */
+#simulator{background:var(--ink);padding:100px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+#simulator .sec-label{color:rgba(255,255,255,.3)}
+#simulator .sec-label::before{background:rgba(255,255,255,.2)}
+#simulator .sec-num{color:rgba(255,255,255,.15)}
+#simulator .h2{color:var(--white)}
+#simulator .h2 em{color:rgba(100,150,255,.8)}
+#simulator .body-t{color:rgba(255,255,255,.4)}
+#simulator .sec-header{border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:40px;margin-bottom:0}
+
+.sim-shell{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid rgba(255,255,255,.08);
+  margin-top:48px;position:relative;overflow:hidden;
+}
+/* ambient glow canvas */
+#sim-canvas{position:absolute;inset:0;pointer-events:none;opacity:.5}
+
+/* LEFT — sliders */
+.sim-l{padding:52px 44px;border-right:1px solid rgba(255,255,255,.08);position:relative;z-index:2}
+.sim-intro{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:36px;display:flex;align-items:center;gap:8px}
+.sim-intro::before{content:'';width:16px;height:1px;background:rgba(255,255,255,.2)}
+.sim-fields{display:flex;flex-direction:column;gap:32px}
+.sf-field{}
+.sf-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.sf-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.sf-val{font-size:28px;font-weight:900;color:var(--white);letter-spacing:-.05em;line-height:1;transition:color .2s}
+.sf-val.pop{color:var(--blue)}
+
+/* custom range track */
+.sf-track{position:relative;height:2px;background:rgba(255,255,255,.1);margin-bottom:4px}
+.sf-fill{position:absolute;left:0;top:0;height:100%;background:var(--blue);transition:width .05s;pointer-events:none}
+input[type=range]{
+  width:100%;height:2px;background:transparent;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+  position:relative;z-index:1;margin:0;padding:0;
+  outline:none;touch-action:pan-y;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--white);border:2px solid var(--blue);
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 0 0 0 rgba(0,80,240,.4);
+}
+input[type=range]::-webkit-slider-thumb:hover,
+input[type=range]:active::-webkit-slider-thumb{
+  transform:scale(1.2);box-shadow:0 0 0 8px rgba(0,80,240,.15);
+}
+input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--white);border:2px solid var(--blue);cursor:pointer;
+}
+.sf-range-hints{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.15);letter-spacing:.06em;margin-top:6px}
+
+/* RIGHT — results */
+.sim-r{padding:52px 44px;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:space-between}
+.sr-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(0,80,240,.7);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sr-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+.sr-main-num{
+  font-size:clamp(64px,7vw,110px);font-weight:900;
+  color:var(--white);letter-spacing:-.07em;line-height:.9;
+  margin-bottom:6px;
+  font-variant-numeric:tabular-nums;
+  transition:all .3s cubic-bezier(.16,1,.3,1);
+}
+.sr-main-num.counting{color:var(--blue)}
+.sr-note{font-size:12px;color:rgba(255,255,255,.35);font-family:var(--mono);letter-spacing:.03em;margin-bottom:40px;line-height:1.6}
+
+/* stat bars */
+.sim-bars{display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(255,255,255,.07)}
+.sb-row{display:grid;grid-template-columns:90px 1fr 64px;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-row:last-child{border-bottom:none}
+.sb-l{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25)}
+.sb-track{height:2px;background:rgba(255,255,255,.07);position:relative;overflow:visible}
+.sb-fill{height:100%;background:var(--blue);transition:width .8s cubic-bezier(.16,1,.3,1);position:relative}
+.sb-fill::after{content:'';position:absolute;right:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--blue);border:2px solid rgba(0,80,240,.3);box-shadow:0 0 8px rgba(0,80,240,.6);opacity:0;transition:opacity .3s}
+.sb-fill.has-val::after{opacity:1}
+.sb-v{font-family:var(--mono);font-size:11px;color:var(--white);text-align:right;font-weight:500;letter-spacing:.02em}
+
+/* graph canvas */
+.sim-graph{margin-top:32px;position:relative;height:80px;border-top:1px solid rgba(255,255,255,.07)}
+.sim-graph-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:8px;padding-top:12px}
+#sim-graph-cv{width:100%;height:60px;display:block}
+
+/* mobile */
+@media(max-width:1024px){
+  .sim-shell{grid-template-columns:1fr}
+  .sim-l{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
+}
+@media(max-width:768px){
+  #simulator{padding:56px 0}
+  .sim-l,.sim-r{padding:32px 20px}
+  .sf-val{font-size:22px}
+  .sr-main-num{font-size:clamp(52px,14vw,80px)}
+  .sim-graph{height:60px}
+  #sim-graph-cv{height:48px}
+  .sb-row{grid-template-columns:72px 1fr 52px;gap:10px}
+}
 
 /* ══ AFTER ══ */
 /* ══ AFTER / TIMELINE ══ */
@@ -708,8 +790,8 @@ footer{background:#111;border-top:3px solid var(--blue);padding:48px 28px 40px;d
 /* ══ RESPONSIVE ══ */
 @media(max-width:1024px){
   .sec-header{grid-template-columns:1fr}
-  .prob-grid,.audit-wrap,.about-wrap,.sim-wrap{grid-template-columns:1fr}
-  .prob-l,.audit-l,.sim-l{border-right:none;border-bottom:1px solid var(--line)}
+  .prob-grid,.audit-wrap,.about-wrap{grid-template-columns:1fr}
+  .prob-l,.audit-l{border-right:none;border-bottom:1px solid var(--line)}
   .who-grid{grid-template-columns:repeat(2,1fr)}
   .proc-grid{grid-template-columns:repeat(2,1fr)}
   .ps:nth-child(2){border-right:none}
@@ -765,10 +847,7 @@ footer{background:#111;border-top:3px solid var(--blue);padding:48px 28px 40px;d
   .foot-links a{font-size:14px;color:rgba(255,255,255,.7)}
   .cta-sec{padding:80px 0}
   .about-wrap{grid-template-columns:1fr;gap:32px}
-  .sim-wrap{grid-template-columns:1fr}
-  .sim-l{border-right:none;border-bottom:1px solid var(--line)}
-  .sim-r{padding:32px 16px}
-  .sim-l{padding:32px 16px}
+
   /* after timeline mobile */
   .at-step{grid-template-columns:48px 1fr}
   .at-content{padding:20px 16px;grid-template-columns:1fr;gap:10px}
@@ -1467,34 +1546,95 @@ footer{background:#111;border-top:3px solid var(--blue);padding:48px 28px 40px;d
 
 <!-- ══ SIMULATOR ══ -->
 <section class="sec" id="simulator">
+  <canvas id="sim-canvas"></canvas>
   <div class="wrap">
     <div class="sec-header rv">
       <div>
         <div class="sec-label"><span class="sec-num">006</span>Interactive tool</div>
         <h2 class="h2">Growth <em>simulator</em></h2>
       </div>
-      <p class="body-t">Adjust the inputs to model your potential reach and follower growth with a promotion campaign applied.</p>
+      <p class="body-t">Drag the sliders to model your potential reach and follower growth with a campaign applied.</p>
     </div>
-    <div class="sim-wrap">
-      <div class="sim-l rv">
-        <p class="body-t" style="margin-bottom:4px">Move the sliders to calculate your estimated campaign results.</p>
+    <div class="sim-shell rv" style="transition-delay:.08s">
+
+      <!-- LEFT: sliders -->
+      <div class="sim-l">
+        <div class="sim-intro">Move sliders to calculate</div>
         <div class="sim-fields">
-          <div><div class="sf-top"><span class="sf-lbl">Current followers</span><span class="sf-val" id="fv">800</span></div><input type="range" min="100" max="10000" value="800" step="100" id="fs" oninput="updateSim()"/></div>
-          <div><div class="sf-top"><span class="sf-lbl">Posts per week</span><span class="sf-val" id="ppwv">4</span></div><input type="range" min="1" max="14" value="4" step="1" id="ppws" oninput="updateSim()"/></div>
-          <div><div class="sf-top"><span class="sf-lbl">Avg. engagement rate</span><span class="sf-val" id="ev">3.2%</span></div><input type="range" min="10" max="150" value="32" step="1" id="es" oninput="updateSim()"/></div>
-          <div><div class="sf-top"><span class="sf-lbl">Campaign (weeks)</span><span class="sf-val" id="dv">4</span></div><input type="range" min="1" max="12" value="4" step="1" id="ds" oninput="updateSim()"/></div>
+
+          <div class="sf-field">
+            <div class="sf-top">
+              <span class="sf-lbl">Current followers</span>
+              <span class="sf-val" id="fv">800</span>
+            </div>
+            <div class="sf-track"><div class="sf-fill" id="ff1"></div></div>
+            <input type="range" min="100" max="10000" value="800" step="100" id="fs" oninput="updateSim()"/>
+            <div class="sf-range-hints"><span>100</span><span>10K</span></div>
+          </div>
+
+          <div class="sf-field">
+            <div class="sf-top">
+              <span class="sf-lbl">Posts per week</span>
+              <span class="sf-val" id="ppwv">4</span>
+            </div>
+            <div class="sf-track"><div class="sf-fill" id="ff2"></div></div>
+            <input type="range" min="1" max="14" value="4" step="1" id="ppws" oninput="updateSim()"/>
+            <div class="sf-range-hints"><span>1</span><span>14</span></div>
+          </div>
+
+          <div class="sf-field">
+            <div class="sf-top">
+              <span class="sf-lbl">Avg. engagement rate</span>
+              <span class="sf-val" id="ev">3.2%</span>
+            </div>
+            <div class="sf-track"><div class="sf-fill" id="ff3"></div></div>
+            <input type="range" min="10" max="150" value="32" step="1" id="es" oninput="updateSim()"/>
+            <div class="sf-range-hints"><span>1%</span><span>15%</span></div>
+          </div>
+
+          <div class="sf-field">
+            <div class="sf-top">
+              <span class="sf-lbl">Campaign duration</span>
+              <span class="sf-val" id="dv">4 <span style="font-size:.4em;color:rgba(255,255,255,.3);font-weight:500">wks</span></span>
+            </div>
+            <div class="sf-track"><div class="sf-fill" id="ff4"></div></div>
+            <input type="range" min="1" max="12" value="4" step="1" id="ds" oninput="updateSim()"/>
+            <div class="sf-range-hints"><span>1 wk</span><span>12 wks</span></div>
+          </div>
+
         </div>
       </div>
-      <div class="sim-r rv" style="transition-delay:.1s">
-        <div class="sr-lbl">Estimated reach</div>
-        <div class="sr-big" id="sr-reach">—</div>
-        <div class="sr-note" id="sr-note">Adjust sliders to calculate</div>
+
+      <!-- RIGHT: results -->
+      <div class="sim-r">
         <div>
-          <div class="sb-row"><div class="sb-l">Followers</div><div class="sb-tr"><div class="sb-f" id="sbf" style="width:0%"></div></div><div class="sb-v" id="svf">—</div></div>
-          <div class="sb-row"><div class="sb-l">Reach</div><div class="sb-tr"><div class="sb-f" id="sbr" style="width:0%"></div></div><div class="sb-v" id="svr">—</div></div>
-          <div class="sb-row"><div class="sb-l">Impressions</div><div class="sb-tr"><div class="sb-f" id="sbi" style="width:0%"></div></div><div class="sb-v" id="svi">—</div></div>
+          <div class="sr-eyebrow">Estimated reach</div>
+          <div class="sr-main-num" id="sr-reach">1.6K</div>
+          <div class="sr-note" id="sr-note">~31 new followers · 3,734 impressions</div>
+        </div>
+        <div class="sim-bars">
+          <div class="sb-row">
+            <div class="sb-l">Followers</div>
+            <div class="sb-track"><div class="sb-fill" id="sbf" style="width:0%"></div></div>
+            <div class="sb-v" id="svf">—</div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-l">Reach</div>
+            <div class="sb-track"><div class="sb-fill" id="sbr" style="width:0%"></div></div>
+            <div class="sb-v" id="svr">—</div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-l">Impressions</div>
+            <div class="sb-track"><div class="sb-fill" id="sbi" style="width:0%"></div></div>
+            <div class="sb-v" id="svi">—</div>
+          </div>
+        </div>
+        <div class="sim-graph">
+          <div class="sim-graph-label">Projected growth curve</div>
+          <canvas id="sim-graph-cv"></canvas>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -2052,18 +2192,169 @@ function setPlat(p,btn){
 }
 
 /* ════ SIMULATOR ════ */
-var MAX_R=10000*14*.15*12*3.8;
-function updateSim(){
-  var fol=parseInt(document.getElementById('fs').value),ppw=parseInt(document.getElementById('ppws').value),eng=parseInt(document.getElementById('es').value)/10,dur=parseInt(document.getElementById('ds').value);
-  document.getElementById('fv').textContent=fol.toLocaleString();document.getElementById('ppwv').textContent=ppw;document.getElementById('ev').textContent=eng.toFixed(1)+'%';document.getElementById('dv').textContent=dur;
-  var reach=Math.round(fol*ppw*(eng/100)*dur*3.8),imp=Math.round(reach*2.4),nf=Math.round(reach*.02);
-  function fmt(n){return n>=1000?(n/1000).toFixed(1)+'K':n;}
-  document.getElementById('sr-reach').textContent=fmt(reach);
-  document.getElementById('sr-note').textContent='~'+nf.toLocaleString()+' new followers · '+imp.toLocaleString()+' impressions';
-  document.getElementById('svf').textContent=fmt(nf);document.getElementById('svr').textContent=fmt(reach);document.getElementById('svi').textContent=fmt(imp);
-  document.getElementById('sbf').style.width=Math.min(nf/200*100,100)+'%';document.getElementById('sbr').style.width=Math.min(reach/MAX_R*100,95)+'%';document.getElementById('sbi').style.width=Math.min(imp/MAX_R*100,98)+'%';
-}
-updateSim();
+/* ════ GROWTH SIMULATOR ════ */
+(function(){
+  var MAX_R = 10000*14*.15*12*3.8;
+  var prevVal = 0;
+
+  function fmt(n){
+    if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+    if(n>=1000) return (n/1000).toFixed(1)+'K';
+    return n.toLocaleString();
+  }
+
+  /* track fill bars next to sliders */
+  function updateFills(){
+    var fields = [
+      {inp:'fs',  fill:'ff1', min:100,  max:10000},
+      {inp:'ppws',fill:'ff2', min:1,    max:14},
+      {inp:'es',  fill:'ff3', min:10,   max:150},
+      {inp:'ds',  fill:'ff4', min:1,    max:12},
+    ];
+    fields.forEach(function(f){
+      var el=document.getElementById(f.inp);
+      var fl=document.getElementById(f.fill);
+      if(!el||!fl) return;
+      var pct=(el.value-f.min)/(f.max-f.min)*100;
+      fl.style.width=pct+'%';
+    });
+  }
+
+  /* animated counter for the big number */
+  function animateNum(el, from, to, duration){
+    var start=null;
+    function step(ts){
+      if(!start) start=ts;
+      var p=Math.min((ts-start)/duration,1);
+      var ease=1-Math.pow(1-p,3);
+      var cur=Math.round(from+(to-from)*ease);
+      el.textContent=fmt(cur);
+      if(p<1) requestAnimationFrame(step);
+      else el.classList.remove('counting');
+    }
+    el.classList.add('counting');
+    requestAnimationFrame(step);
+  }
+
+  /* growth curve graph */
+  function drawGraph(dur, nf){
+    var cv=document.getElementById('sim-graph-cv');
+    if(!cv) return;
+    var ctx=cv.getContext('2d');
+    var W=cv.offsetWidth, H=cv.offsetHeight;
+    cv.width=W; cv.height=H;
+    if(!W||!H) return;
+
+    ctx.clearRect(0,0,W,H);
+
+    /* generate growth points with acceleration curve */
+    var pts=[];
+    for(var i=0;i<=dur;i++){
+      var t=i/dur;
+      var growth=nf*(Math.pow(t,0.7)); /* accelerating curve */
+      pts.push({x:(i/dur)*W, y:H-(growth/nf)*H*0.85});
+    }
+
+    /* gradient fill */
+    var grad=ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(0,80,240,.25)');
+    grad.addColorStop(1,'rgba(0,80,240,0)');
+
+    ctx.beginPath();
+    ctx.moveTo(0,H);
+    pts.forEach(function(p){ ctx.lineTo(p.x,p.y); });
+    ctx.lineTo(W,H);
+    ctx.closePath();
+    ctx.fillStyle=grad;
+    ctx.fill();
+
+    /* line */
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(var i=1;i<pts.length;i++){
+      var prev=pts[i-1], curr=pts[i];
+      var cx=(prev.x+curr.x)/2;
+      ctx.bezierCurveTo(cx,prev.y,cx,curr.y,curr.x,curr.y);
+    }
+    ctx.strokeStyle='rgba(0,80,240,.8)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    /* end dot */
+    var last=pts[pts.length-1];
+    ctx.beginPath();
+    ctx.arc(last.x,last.y,4,0,Math.PI*2);
+    ctx.fillStyle='var(--blue)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(last.x,last.y,8,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,80,240,.2)';
+    ctx.fill();
+  }
+
+  window.updateSim = function(){
+    var fol=parseInt(document.getElementById('fs').value)||800;
+    var ppw=parseInt(document.getElementById('ppws').value)||4;
+    var eng=parseInt(document.getElementById('es').value)/10||3.2;
+    var dur=parseInt(document.getElementById('ds').value)||4;
+
+    /* display values */
+    document.getElementById('fv').textContent=fol.toLocaleString();
+    document.getElementById('ppwv').textContent=ppw;
+    document.getElementById('ev').textContent=eng.toFixed(1)+'%';
+    var dvEl=document.getElementById('dv');
+    dvEl.innerHTML=dur+' <span style="font-size:.4em;color:rgba(255,255,255,.3);font-weight:500">wks</span>';
+
+    /* compute */
+    var reach=Math.round(fol*ppw*(eng/100)*dur*3.8);
+    var imp=Math.round(reach*2.4);
+    var nf=Math.round(reach*.02);
+
+    /* animate big number */
+    var mainEl=document.getElementById('sr-reach');
+    animateNum(mainEl, prevVal, reach, 400);
+    prevVal=reach;
+
+    /* note */
+    document.getElementById('sr-note').textContent='~'+nf.toLocaleString()+' new followers · '+imp.toLocaleString()+' impressions';
+
+    /* bar values */
+    document.getElementById('svf').textContent=fmt(nf);
+    document.getElementById('svr').textContent=fmt(reach);
+    document.getElementById('svi').textContent=fmt(imp);
+
+    /* animated bars */
+    var sf=document.getElementById('sbf');
+    var sr=document.getElementById('sbr');
+    var si=document.getElementById('sbi');
+    var fw=Math.min(nf/500*100,100);
+    var rw=Math.min(reach/MAX_R*100,96);
+    var iw=Math.min(imp/MAX_R*100,99);
+    sf.style.width=fw+'%'; sf.classList.toggle('has-val',fw>1);
+    sr.style.width=rw+'%'; sr.classList.toggle('has-val',rw>1);
+    si.style.width=iw+'%'; si.classList.toggle('has-val',iw>1);
+
+    /* slider fill tracks */
+    updateFills();
+
+    /* draw growth curve */
+    drawGraph(dur, nf);
+  };
+
+  /* init */
+  updateSim();
+
+  /* redraw graph on resize */
+  window.addEventListener('resize', function(){
+    var fol=parseInt(document.getElementById('fs').value)||800;
+    var ppw=parseInt(document.getElementById('ppws').value)||4;
+    var eng=parseInt(document.getElementById('es').value)/10||3.2;
+    var dur=parseInt(document.getElementById('ds').value)||4;
+    var reach=Math.round(fol*ppw*(eng/100)*dur*3.8);
+    var nf=Math.round(reach*.02);
+    drawGraph(dur,nf);
+  },{passive:true});
+})();
 
 /* ════ FAQ ════ */
 function tfaq(btn){var item=btn.parentElement,open=item.classList.contains('open');document.querySelectorAll('.faq-i.open').forEach(function(i){i.classList.remove('open');});if(!open)item.classList.add('open');}
