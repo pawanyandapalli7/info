@@ -50,9 +50,10 @@ const Who = () => (
   </window.Section>
 );
 
-const WhoCard = ({n,t,tag,d,cta}) => (
+const WhoCard = ({n,t,tag,d,cta,accent='#166534'}) => (
   <div className="reveal who-card" style={{
-    background:'rgba(255,255,255,.85)', border:'1px solid rgba(22,101,52,.15)',
+    background:'rgba(255,255,255,.85)', border:'1px solid rgba(22,101,52,.1)',
+    borderTop:`3px solid ${accent}`,
     borderRadius:20, padding:'28px 24px',
     transition:'transform .25s, border-color .25s, box-shadow .25s',
     backdropFilter:'blur(8px)', display:'flex', flexDirection:'column',
@@ -61,7 +62,7 @@ const WhoCard = ({n,t,tag,d,cta}) => (
   onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.borderColor='var(--line)';e.currentTarget.style.boxShadow='none';}}>
     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
       <span style={{fontFamily:'var(--mono)', fontSize:11, color:'var(--accent)', fontWeight:600}}>{n}</span>
-      <span style={{padding:'3px 10px', borderRadius:999, background:'var(--accent-l)', border:'1px solid rgba(22,101,52,.2)', fontSize:10, fontFamily:'var(--mono)', color: k.accent || 'var(--accent)', textTransform:'uppercase', letterSpacing:'.08em'}}>{tag}</span>
+      <span style={{padding:'3px 10px', borderRadius:999, background:'var(--accent-l)', border:'1px solid rgba(22,101,52,.2)', fontSize:10, fontFamily:'var(--mono)', color: accent, textTransform:'uppercase', letterSpacing:'.08em'}}>{tag}</span>
     </div>
     <h3 style={{fontFamily:'var(--sans)', fontWeight:800, fontSize:'clamp(18px,2vw,24px)', letterSpacing:'-.02em', lineHeight:1.15, color:'var(--ink)', marginBottom:12}}>{t}</h3>
     <p style={{fontSize:14, lineHeight:1.6, color:'var(--ink-2)', flex:1}}>{d}</p>
